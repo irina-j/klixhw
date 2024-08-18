@@ -1,0 +1,20 @@
+{
+  "id": "aaae2149-6268-4ffd-b57a-87aa13e39bc9",
+  "status": "PROCESSED",
+  "offer": {
+    "monthlyPaymentAmount": 22.00,
+    "totalRepaymentAmount": 264.00,
+    "numberOfPayments": 12,
+    "annualPercentageRate": 10.32,
+    "firstRepaymentDate": "2024-09-11"
+  },
+  "request": {
+    "phoneNumber": "+37176021755",
+    "email": "john.doe@klix.app",
+    "monthlyIncomeAmount": 150.0,
+    "monthlyCreditLiabilities": 50.0,
+    "dependents": 0,
+    "agreeToDataSharing": true,
+    "amount": 200
+  }
+}

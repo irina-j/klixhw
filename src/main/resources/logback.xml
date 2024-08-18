@@ -1,0 +1,65 @@
+<configuration>
+
+    <!-- Define properties and appenders -->
+    <property name="LOG_PATTERN" value="%d [%thread] %-5level %logger{36} - %msg%n" />
+
+    <!-- Console Appender for all levels -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date %level [${app-name}-%thread] %logger{36} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File Appender for general logs -->
+    <appender name="GENERAL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/general.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/general-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File Appender for ERROR level logs with custom pattern -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/error-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>
+                %d [%thread] %-5level %logger{36} -
+                ERROR_ID=%X{ERROR_ID}
+                ERROR_TYPE=%X{ERROR_TYPE}
+                ERROR_DETAIL=%X{ERROR_DETAIL}
+                BUSINESS_MESSAGE=%X{BUSINESS_MESSAGE}
+                REQUEST_URI=%X{REQUEST_URI}
+                REQUEST_METHOD=%X{REQUEST_METHOD}
+                TIMESTAMP=%X{TIMESTAMP}
+                CAUSE=%X{CAUSE}
+                ERRORS=%X{ERRORS}
+                - %msg%n
+            </pattern>
+        </encoder>
+
+        <!-- Filter to include only ERROR level logs -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- Root logger configuration -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GENERAL_FILE" />
+    </root>
+
+    <!-- Logger configuration to use the ERROR_FILE appender for ERROR logs -->
+    <logger name="org.mintos" level="ERROR" additivity="false">
+        <appender-ref ref="ERROR_FILE" />
+    </logger>
+
+</configuration>

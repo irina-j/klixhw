@@ -1,0 +1,30 @@
+app-name: klixhw
+
+server:
+  error:
+    include-stacktrace: never
+
+server.port: 8081
+
+# OFFERS API
+offers-api:
+  fast-bank:
+    url: https://shop.uat.klix.app:443/api/FastBank
+    timeout: 60
+    retry:
+      count: 7
+      delay-sec: 4
+  solid-bank:
+    url: https://shop.uat.klix.app:443/api/SolidBank
+    timeout: 60
+    retry:
+      count: 10
+      delay-sec: 4
+
+logging:
+  pattern:
+    level: '%X{mdcData}%5p'
+  level:
+    root: info
+
+

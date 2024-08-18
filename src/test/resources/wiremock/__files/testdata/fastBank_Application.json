@@ -1,0 +1,13 @@
+{
+  "id": "e0190579-a3f1-4911-b44e-8d9c93cf6792",
+  "status": "DRAFT",
+  "request": {
+    "phoneNumber": "+37176021755",
+    "email": "john.doe@klix.app",
+    "monthlyIncomeAmount": 150.00,
+    "monthlyCreditLiabilities": 50.00,
+    "dependents": 0,
+    "agreeToDataSharing": true,
+    "amount": 200
+  }
+}

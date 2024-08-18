@@ -1,0 +1,13 @@
+{
+  "id": "80134b2a-1492-461c-8fa9-e78d0c28b168",
+  "status": "PROCESSED",
+  "request": {
+    "phone": "+37145678930",
+    "email": "jane.doe@klix.com",
+    "monthlyIncome": 3000.75,
+    "monthlyExpenses": 1500.5,
+    "maritalStatus": "SINGLE",
+    "agreeToBeScored": false,
+    "amount": 5000.0
+  }
+}

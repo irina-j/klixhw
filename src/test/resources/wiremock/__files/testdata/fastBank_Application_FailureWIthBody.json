@@ -1,0 +1,10 @@
+{
+  "errorId": "e0190579-a3f1-4911-b44e-8d9c93cf6792",
+  "timestamp": "2024-08-16T18:00:00.543",
+  "errors": [
+    {
+      "code": "Validation",
+      "message": "Validation error due to patter mismatch"
+    }
+  ]
+}

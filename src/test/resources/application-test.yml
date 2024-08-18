@@ -1,0 +1,30 @@
+app-name: klixhw
+
+server:
+  error:
+    include-stacktrace: never
+
+server.port: 8080
+
+# OFFERS API
+offers-api:
+  fast-bank:
+    url: http://localhost:8081/
+    timeout: 60
+    retry:
+      count: 3
+      delay-sec: 2
+  solid-bank:
+    url: http://localhost:8081/
+    timeout: 60
+    retry:
+      count: 10
+      delay-sec: 3
+
+logging:
+  pattern:
+    level: '%X{mdcData}%5p'
+  level:
+    root: info
+
+
