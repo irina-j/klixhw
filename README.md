@@ -12,7 +12,7 @@ It should be enough for run application
 ## Running
 - To start application use ```mvn spring-boot:run```
 - To start tests only use ```mvn test```
-- UI is available on ```localhost:8081```
+- Application is available on ```localhost:8081```
 
 ## Calls for Application Test
 1. Happy Path Scenario ```curl --location --request POST 'http://localhost:8081/v1/offer' \
