@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class SolidBankRequestMapper {
+public class SolidBankMapper {
 
     public ApplicationRequest mapToRequest(CustomerApplication application) {
         return ApplicationRequest.builder()
@@ -21,7 +21,7 @@ public class SolidBankRequestMapper {
                 .email(application.getEmail())
                 .monthlyIncome(application.getMonthlyIncome())
                 .monthlyExpenses(application.getMonthlyExpenses())
-                .maritalStatus(MaritalStatus.valueOf(application.getMaritalStatus().toUpperCase()))
+                .maritalStatus(MaritalStatus.getValue(application.getMaritalStatus()))
                 .agreeToBeScored(application.isAgreeToBeScored())
                 .amount(application.getAmount())
                 .build();
@@ -36,7 +36,7 @@ public class SolidBankRequestMapper {
     private Response buildResponse(SolidRetrieveOfferResponse solidRetrieveOfferResponse) {
         Offer offer = Optional.ofNullable(solidRetrieveOfferResponse.getOffer())
                 .map(this::buildOffer)
-                .orElse(new Offer());
+                .orElse(null);
         return Response.builder()
                 .offer(offer)
                 .sourceSystem(SourceSystem.SOLID_BANK)

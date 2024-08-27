@@ -32,6 +32,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 @ConfigurationPropertiesScan("org.klix.config")
 class FastBankServiceTest {
 
+    public static final Duration TEST_TIMEOUT_SECONDS = Duration.ofSeconds(10);
+
     @Autowired
     private FastBankService fastBankService;
 
@@ -42,7 +44,6 @@ class FastBankServiceTest {
         wireMockServer = new WireMockServer(options().port(8081)
                 .usingFilesUnderClasspath("wiremock")
                 .notifier(new ConsoleNotifier(true)));
-        MockitoAnnotations.openMocks(this);
         wireMockServer.start();
     }
 
@@ -90,7 +91,7 @@ class FastBankServiceTest {
                             && "PROCESSED".equalsIgnoreCase(response.getStatus());
                 })
                 .expectComplete()
-                .verify(Duration.ofSeconds(15));
+                .verify(TEST_TIMEOUT_SECONDS);
     }
 
     @Test
@@ -107,7 +108,7 @@ class FastBankServiceTest {
                             && "PROCESSED".equalsIgnoreCase(response.getStatus());
                 })
                 .expectComplete()
-                .verify(Duration.ofSeconds(15));
+                .verify(TEST_TIMEOUT_SECONDS);
     }
 
     @Test
@@ -121,7 +122,7 @@ class FastBankServiceTest {
         StepVerifier.create(fastBankService.submitAndPollFastBank(customerApplication).log())
                 .as("Expected function to complete if external system failed")
                 .expectComplete()
-                .verify(Duration.ofSeconds(15));
+                .verify(TEST_TIMEOUT_SECONDS);
     }
 
     @Test
@@ -140,7 +141,7 @@ class FastBankServiceTest {
                             && "FAILED".equalsIgnoreCase(response.getStatus());
                 })
                 .expectComplete()
-                .verify(Duration.ofSeconds(15));
+                .verify(TEST_TIMEOUT_SECONDS);
     }
 
     @Test
@@ -155,7 +156,7 @@ class FastBankServiceTest {
         StepVerifier.create(fastBankService.submitAndPollFastBank(customerApplication).log())
                 .as("Expected function to complete if call will not be successful in given time")
                 .expectComplete()
-                .verify(Duration.ofSeconds(15));
+                .verify(TEST_TIMEOUT_SECONDS);
     }
 
     @Test
@@ -170,7 +171,7 @@ class FastBankServiceTest {
         StepVerifier.create(fastBankService.submitAndPollFastBank(customerApplication).log())
                 .as("Expected function to complete if call will not be successful in given time")
                 .expectComplete()
-                .verify(Duration.ofSeconds(15));
+                .verify(TEST_TIMEOUT_SECONDS);
     }
 
     private void createGetFailureStub(String pathSegment, HttpStatus errorStatus) {

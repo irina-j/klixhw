@@ -2,7 +2,8 @@ package org.klix.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.klix.client.FastBankApiClient;
-import org.klix.client.mapper.FastBankRequestMapper;
+import org.klix.client.dto.fastbank.FastRetrieveOfferResponse;
+import org.klix.client.mapper.FastBankMapper;
 import org.klix.config.PollingConfig;
 import org.klix.dto.ApplicationResponse;
 import org.klix.dto.CustomerApplication;
@@ -27,12 +28,14 @@ public class FastBankService {
 
     private SourceSystem sourceSystemName;
 
+
+
     private FastBankApiClient client;
-    private FastBankRequestMapper mapper;
+    private FastBankMapper mapper;
     private PollingConfig fastBankPollingConfig;
 
     public FastBankService(FastBankApiClient client,
-                           FastBankRequestMapper mapper,
+                           FastBankMapper mapper,
                            PollingConfig fastBankPollingConfig) {
         this.sourceSystemName = SourceSystem.FAST_BANK;
         this.fastBankPollingConfig = fastBankPollingConfig;
@@ -45,14 +48,9 @@ public class FastBankService {
                 .doOnSubscribe(application -> log.info("Submitting application to " + sourceSystemName + " for email: {}", customerApplication.getEmail()))
                 .onErrorResume(e -> onErrorFunction(sourceSystemName, (KlixExecutionException) e))
                 .timeout(Duration.ofSeconds(fastBankPollingConfig.getTimeoutSecs()))
-                .flatMapMany(response -> {
-                    if (Status.FAILED.equalsIgnoreCase(response.getStatus())) {
-                        return buildFailedResponse(response);
-                    }
-                    return pollFastBankForOffer(response);
-                })
+                .flatMapMany(this::handleResponse)
                 .onErrorResume(e -> {
-                    log.error("Error during submission or polling: {}", e.getMessage());
+                    log.error(sourceSystemName + ": Error during submission or polling: {}", e.getMessage());
                     return Flux.empty();
                 });
     }
@@ -61,10 +59,7 @@ public class FastBankService {
         String requestId = applicationResponse.getId();
         return Flux.defer(() -> client.getOfferByApplicationId(requestId))
                 .doOnNext(offer -> log.info(sourceSystemName + ": Received offer with status: {} for requestId: {}", offer.getStatus(), requestId))
-                .repeatWhen(repeat -> repeat
-                        .doOnNext(signal -> log.info(sourceSystemName + ": No Success offer yet, retrying after delay ..."))
-                        .delayElements(Duration.ofSeconds(fastBankPollingConfig.getRetryDelaySeconds()))
-                        .take(fastBankPollingConfig.getRetryCount()))
+                .transform(this::handlePollingRetry)
                 .filter(response -> Status.PROCESSED.equalsIgnoreCase(response.getStatus()))
                 .take(FIRST_RESPONSE)
                 .timeout(Duration.ofSeconds(fastBankPollingConfig.getTimeoutSecs()))
@@ -74,6 +69,20 @@ public class FastBankService {
                 })
                 .map(mapper::mapToResponse)
                 .doOnComplete(() -> log.info(sourceSystemName + ": Polling complete for requestId: {}", requestId));
+    }
+
+    private Flux<FastRetrieveOfferResponse> handlePollingRetry(Flux<FastRetrieveOfferResponse> offerFlux) {
+        return offerFlux.repeatWhen(repeat -> repeat
+                .doOnNext(signal -> log.info(sourceSystemName + ": No Success offer yet, retrying after delay ..."))
+                .delayElements(Duration.ofSeconds(fastBankPollingConfig.getRetryDelaySeconds()))
+                .take(fastBankPollingConfig.getRetryCount()));
+    }
+
+    private Flux<Response> handleResponse(ApplicationResponse response) {
+        if (Status.FAILED.equalsIgnoreCase(response.getStatus())) {
+            return buildFailedResponse(response);
+        }
+        return pollFastBankForOffer(response);
     }
 
 }

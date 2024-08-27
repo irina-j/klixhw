@@ -16,18 +16,6 @@ public enum SourceSystem {
         this.sourceSystemName = sourceSystemName;
     }
 
-    public static SourceSystem getValue(String text) {
-        if (text == null) {
-            return null;
-        }
-        for (SourceSystem b : SourceSystem.values()) {
-            if (String.valueOf(b.sourceSystemName).equalsIgnoreCase(text)) {
-                return b;
-            }
-        }
-        throw new NoSuchElementException("No such source system: " + text);
-    }
-
     @Override
     @JsonValue
     public String toString() {

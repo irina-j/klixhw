@@ -4,7 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.klix.client.dto.solidbank.ApplicationRequest;
 import org.klix.client.dto.solidbank.SolidRetrieveOfferResponse;
 import org.klix.client.dto.solidbank.SolidSubmitOfferResponse;
-import org.klix.client.mapper.SolidBankRequestMapper;
+import org.klix.client.mapper.SolidBankMapper;
 import org.klix.dto.ApplicationResponse;
 import org.klix.dto.CustomerApplication;
 import org.klix.util.ErrorUtil;
@@ -25,10 +25,10 @@ public class SolidBankApiClient {
     private String apiUrl;
 
     private WebClient webClient;
-    private SolidBankRequestMapper mapper;
+    private SolidBankMapper mapper;
 
     public SolidBankApiClient(WebClient webClient,
-                              SolidBankRequestMapper mapper) {
+                              SolidBankMapper mapper) {
         this.webClient = webClient;
         this.mapper = mapper;
     }

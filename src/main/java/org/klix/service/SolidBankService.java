@@ -2,7 +2,9 @@ package org.klix.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.klix.client.SolidBankApiClient;
-import org.klix.client.mapper.SolidBankRequestMapper;
+import org.klix.client.dto.solidbank.SolidOfferResponse;
+import org.klix.client.dto.solidbank.SolidRetrieveOfferResponse;
+import org.klix.client.mapper.SolidBankMapper;
 import org.klix.config.PollingConfig;
 import org.klix.dto.ApplicationResponse;
 import org.klix.dto.CustomerApplication;
@@ -27,11 +29,11 @@ public class SolidBankService {
     private SourceSystem sourceSystemName;
 
     private SolidBankApiClient client;
-    private SolidBankRequestMapper mapper;
+    private SolidBankMapper mapper;
     private PollingConfig solidBankPollingConfig;
 
     public SolidBankService(SolidBankApiClient client,
-                            SolidBankRequestMapper mapper,
+                            SolidBankMapper mapper,
                             PollingConfig solidBankPollingConfig) {
         this.sourceSystemName = SourceSystem.SOLID_BANK;
         this.solidBankPollingConfig = solidBankPollingConfig;
@@ -44,12 +46,7 @@ public class SolidBankService {
                 .doOnSubscribe(application -> log.info(sourceSystemName + ": Submitting application for email: {}", customerApplication.getEmail()))
                 .onErrorResume(e -> onErrorFunction(sourceSystemName, (KlixExecutionException) e))
                 .timeout(Duration.ofSeconds(solidBankPollingConfig.getTimeoutSecs()))
-                .flatMapMany(response -> {
-                    if (Status.FAILED.equalsIgnoreCase(response.getStatus())) {
-                        return buildFailedResponse(response);
-                    }
-                    return pollSolidBankForOffer(response);
-                })
+                .flatMapMany(this::handleResponse)
                 .onErrorResume(e -> {
                     log.error(sourceSystemName + ": Error during submission or polling: {}", e.getMessage());
                     return Flux.empty();
@@ -60,10 +57,7 @@ public class SolidBankService {
         String requestId = applicationResponse.getId();
         return Flux.defer(() -> client.getOfferByApplicationId(requestId))
                 .doOnNext(offer -> log.info(sourceSystemName + ": Received offer with status: {} for requestId: {}", offer.getStatus(), requestId))
-                .repeatWhen(repeat -> repeat
-                        .doOnNext(signal -> log.info(sourceSystemName + ": No Success offer yet, retrying after delay ..."))
-                        .delayElements(Duration.ofSeconds(solidBankPollingConfig.getRetryDelaySeconds()))
-                        .take(solidBankPollingConfig.getRetryCount()))
+                .transform(this::handlePollingRetry)
                 .filter(response -> Status.PROCESSED.equalsIgnoreCase(response.getStatus()))
                 .take(FIRST_RESPONSE)
                 .timeout(Duration.ofSeconds(solidBankPollingConfig.getTimeoutSecs()))
@@ -73,5 +67,19 @@ public class SolidBankService {
                 })
                 .map(mapper::mapToResponse)
                 .doOnComplete(() -> log.info(sourceSystemName + ": Polling complete for requestId: {}", requestId));
+    }
+
+    private Flux<SolidRetrieveOfferResponse> handlePollingRetry(Flux<SolidRetrieveOfferResponse> offerFlux) {
+        return offerFlux.repeatWhen(repeat -> repeat
+                .doOnNext(signal -> log.info(sourceSystemName + ": No Success offer yet, retrying after delay ..."))
+                .delayElements(Duration.ofSeconds(solidBankPollingConfig.getRetryDelaySeconds()))
+                .take(solidBankPollingConfig.getRetryCount()));
+    }
+
+    private Flux<Response> handleResponse(ApplicationResponse response) {
+        if (Status.FAILED.equalsIgnoreCase(response.getStatus())) {
+            return buildFailedResponse(response);
+        }
+        return pollSolidBankForOffer(response);
     }
 }

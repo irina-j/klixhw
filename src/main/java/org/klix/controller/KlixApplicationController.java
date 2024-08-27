@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import org.klix.dto.CustomerApplication;
 import org.klix.dto.Response;
 import org.klix.service.OfferService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +18,6 @@ public class KlixApplicationController {
 
     private final OfferService offerService;
 
-    @Autowired
     public KlixApplicationController(OfferService offerService) {
         this.offerService = offerService;
     }

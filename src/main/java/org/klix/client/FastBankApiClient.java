@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.klix.client.dto.fastbank.ApplicationRequest;
 import org.klix.client.dto.fastbank.FastRetrieveOfferResponse;
 import org.klix.client.dto.fastbank.FastSubmitOfferResponse;
-import org.klix.client.mapper.FastBankRequestMapper;
+import org.klix.client.mapper.FastBankMapper;
 import org.klix.dto.ApplicationResponse;
 import org.klix.dto.CustomerApplication;
 import org.klix.util.ErrorUtil;
@@ -25,10 +25,10 @@ public class FastBankApiClient {
     private String apiUrl;
 
     private WebClient webClient;
-    private FastBankRequestMapper mapper;
+    private FastBankMapper mapper;
 
     public FastBankApiClient(WebClient webClient,
-                             FastBankRequestMapper mapper) {
+                             FastBankMapper mapper) {
         this.webClient = webClient;
         this.mapper = mapper;
     }

@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class FastBankRequestMapperTest {
+class FastBankMapperTest {
 
-    private FastBankRequestMapper mapper;
+    private FastBankMapper mapper;
 
     @BeforeEach
     void setUp() {
-        mapper = new FastBankRequestMapper();
+        mapper = new FastBankMapper();
     }
 
     @Test

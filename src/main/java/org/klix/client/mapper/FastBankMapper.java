@@ -3,8 +3,6 @@ package org.klix.client.mapper;
 import org.klix.client.dto.fastbank.ApplicationRequest;
 import org.klix.client.dto.fastbank.FastOfferResponse;
 import org.klix.client.dto.fastbank.FastRetrieveOfferResponse;
-import org.klix.client.dto.solidbank.SolidOfferResponse;
-import org.klix.client.dto.solidbank.SolidRetrieveOfferResponse;
 import org.klix.dto.CustomerApplication;
 import org.klix.dto.Offer;
 import org.klix.dto.Response;
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class FastBankRequestMapper {
+public class FastBankMapper {
 
     public ApplicationRequest mapToRequest(CustomerApplication application) {
         return ApplicationRequest.builder()
@@ -37,7 +35,7 @@ public class FastBankRequestMapper {
     private Response buildResponse(FastRetrieveOfferResponse fastRetrieveOfferResponse) {
         Offer offer = Optional.ofNullable(fastRetrieveOfferResponse.getOffer())
                 .map(this::buildOffer)
-                .orElse(new Offer());
+                .orElse(null);
         return Response.builder()
                 .offer(offer)
                 .sourceSystem(SourceSystem.FAST_BANK)

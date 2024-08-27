@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 
 class OfferServiceImplTest {
 
-
     @Mock
     private FastBankService fastBankService;
 
